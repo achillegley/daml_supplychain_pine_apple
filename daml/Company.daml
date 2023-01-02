@@ -1,0 +1,166 @@
+module Company where
+
+import Daml.Script
+import Flow as F
+
+data CompanyCategory =
+  Farm|ProcessingCompany|WareHouse|TransportCompany
+    deriving (Eq, Show, Ord)
+
+data OperatorCategory =
+  FarmerOperator|ProcessingCompanyOperator|WareHouseOperator|TransportCompanyOperator
+    deriving (Eq, Show, Ord)
+
+
+data Item = Item
+    with
+        address: Text
+        name: Text
+        category:CompanyCategory
+    deriving(Eq,Show)
+
+
+
+template CompanyCreation
+    with 
+        owner: Party
+    where
+        signatory owner
+        --ensure (show owner)== "businessOwner"
+        nonconsuming choice CreateCompany : ContractId Company with
+            c_company: Item
+            c_readers: [Party]
+            c_operator:Party
+            c_code: Integer
+         controller owner
+            do 
+            create Company with
+                owner=owner
+                company=c_company
+                readers=c_readers
+                operator=c_operator
+                code=c_code
+        
+                      
+        
+
+
+template Company
+  with
+    owner : Party
+    code: Integer
+    operator:Party
+    company: Item
+    readers: [Party]
+  where
+    signatory owner
+    observer readers,operator
+    nonconsuming choice GetFlow : F.FlowCompany
+     controller readers,operator
+        do
+            let
+                toReturn= F.FlowCompany with
+                    address= this.company.address
+                    name= this.company.address
+                    category= show this.company.category
+                    operator = show this.operator
+            return(toReturn)
+    choice CreateReader : ContractId Company with
+            reader : Party
+         controller owner
+            do
+            trace "Ajout d'un lecteur" (create this with readers = reader :: readers)
+
+          
+    --ensure (show owner)=="BusinessOwner"
+
+s_create_company_script= script do
+    businessOwner <- allocateParty "BusinessOwner"
+    farmerOperator <- allocateParty "FarmerOperator"
+
+    
+    companyCreation<- submit businessOwner do
+        createCmd CompanyCreation with
+            owner=businessOwner 
+    --Farm Creation
+    let
+        farmItem=Item with
+            address="11 rue vogan"
+            category=Farm
+            name="Ferme N°5 de vogan"
+        
+    farm<- submit businessOwner do
+        exerciseCmd  companyCreation CreateCompany with
+            c_company=farmItem
+            c_readers=[]
+            c_operator=farmerOperator
+            c_code=1            
+    return(farm)
+
+s_create_node = script do
+    businessOwner <- allocateParty "BusinessOwner"
+    companyCreation<- submit businessOwner do
+        createCmd CompanyCreation with
+            owner=businessOwner 
+    return(businessOwner,companyCreation)
+
+s_create_company_script_with_parameter companyCreation businessOwner operator item= script do
+
+    company<- submit businessOwner do
+        exerciseCmd  companyCreation CreateCompany with
+            c_company=item
+            c_readers=[]
+            c_operator=operator
+            c_code=2            
+    return(company)
+
+
+s_get_company_flow companyCid farmerOperator = script do
+
+    flow<-submit farmerOperator  do
+        exerciseCmd companyCid GetFlow 
+    return(flow)
+
+
+{-
+create_company_script = script do
+    --Processing Company Creation
+    --WareHouse Creation
+    --TransportCompanyCreation
+    companyOperator <- allocateParty "CompanyOperator"
+    farmerOperator <- allocateParty "FarmerOperator"
+    companyOwner <- allocateParty "CompanyOwner"
+    processingCompanyOwner <- allocateParty "ProcessingCompanyOwner"
+
+    
+    let 
+        farmCompany= Item with
+            address="11 rue vogan"
+            category=Farm
+            name="Ferme N°5 de vogan"
+        
+        processingCompany= Item with
+            address="12 rue vogan"
+            category=ProcessingCompany
+            name="AFRICKE EXEL FILIAL VOGAN"
+    
+    voganFerme1<- submit companyOwner do 
+        createCmd Company with 
+            owner= companyOwner
+            company=farmCompany
+            readers=[companyOperator]
+
+    voganProcessingCompany<- submit processingCompanyOwner do 
+        createCmd Company with 
+            owner= processingCompanyOwner
+            company=processingCompany
+            readers=[farmerOperator]
+    pure()
+-}
+    
+    
+
+
+  
+  
+      

@@ -4,8 +4,11 @@ import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
+import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
+import FormControl from "@material-ui/core/FormControl";
 import Fade from "@material-ui/core/Fade";
+import MenuItem from "@material-ui/core/MenuItem";
 import { useUserDispatch, loginUser } from "../../context/UserContext";
 import useStyles from "./styles";
 import logo from "./logo.svg";
@@ -18,11 +21,40 @@ const Login = (props : RouteComponentProps) => {
   var [loginValue, setLoginValue] = useState("");
   var [passwordValue, setPasswordValue] = useState("");
 
+
+  let types=[
+    {
+      name:"Certificate Officer",
+      value:"CertificateOfficer",
+    },
+    {
+      name:"Transport Company Operator",
+      value:"TransportCompanyOperator",
+    },
+    {
+      name:"Processing Company Operator",
+      value:"ProcessingCompanyOperator",
+    }
+    ,
+    {
+      name:"Warehouse Operator",
+      value:"WarehouseOperator",
+    },
+    {
+      name:"Farmer Operator",
+      value:"FarmerOperator",
+    },
+    {
+      name:"Business Owner",
+      value:"BusinessOwner",
+    }
+  ]
+
   return (
     <Grid container className={classes.container}>
       <div className={classes.logotypeContainer}>
         <img src={logo} alt="logo" className={classes.logotypeImage} />
-        <Typography className={classes.logotypeText}>App Template</Typography>
+        <Typography className={classes.logotypeText}>FIRSTY SUPPLYCHAIN</Typography>
       </div>
       <div className={classes.formContainer}>
         <div className={classes.form}>
@@ -32,7 +64,50 @@ const Login = (props : RouteComponentProps) => {
                   Something is wrong with your login or password :(
                 </Typography>
               </Fade>
-              <TextField
+              {/*
+              <FormControl  fullWidth>
+              <Select
+                  id="email"
+                  value={loginValue}
+                  //onChange={e => setLoginValue()}
+                  onChange={e => setPasswordValue(e.target.value)}
+                  defaultValue={""}
+                  onKeyDown={e => {
+                    if (e.key === "Enter") {
+                      loginUser(
+                        userDispatch,
+                        loginValue,
+                        passwordValue,
+                        props.history,
+                        setIsLoading,
+                        setError,
+                      )
+                    }
+                  }}
+                  //margin="normal"
+                  placeholder="Username"
+                  type="select"
+                  fullWidth
+                  >
+                  {types.map(item => (<MenuItem key={item} value={item}>{item}</MenuItem>))}
+              </Select>
+              </FormControl>
+              */}
+              <Typography color="primary" className={classes.textFieldUnderline}>
+                  Login as
+              </Typography>
+              <select 
+                id="email"
+                value={loginValue} 
+                onChange={e => setLoginValue(e.target.value)}
+              >
+                {types.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+              {/*<TextField
                 id="email"
                 InputProps={{
                   classes: {
@@ -57,8 +132,10 @@ const Login = (props : RouteComponentProps) => {
                 margin="normal"
                 placeholder="Username"
                 type="email"
+                disabled={true}
                 fullWidth
-              />
+              />*/}
+              {/*
               <TextField
                 id="password"
                 InputProps={{
@@ -85,7 +162,7 @@ const Login = (props : RouteComponentProps) => {
                 placeholder="Password"
                 type="password"
                 fullWidth
-              />
+              />*/}
               <div className={classes.formButtons}>
                 {isLoading ?
                   <CircularProgress size={26} className={classes.loginLoader} />

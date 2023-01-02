@@ -1,0 +1,31 @@
+module ChainFlow where
+
+import Daml.Script
+data FlowData = FlowData 
+    with
+        c_key:Text
+    deriving(Eq,Show)
+
+template ChainFlow 
+    with
+        readers: [Party]
+        content: [FlowData]
+    where
+        signatory readers
+        nonconsuming choice CreateReader : ContractId ChainFlow with
+           reader : Party
+         controller readers
+            do
+                archive self
+                trace "Ajout d'un lecteur" (create this with readers = reader :: readers)
+
+
+s_add_reader flow reader operator = script do
+    
+    
+    flow1 <- submit reader do 
+        exerciseCmd flow CreateReader with
+            reader=reader
+    return(flow1)
+  
+        

@@ -1,7 +1,22 @@
 [{
+  "_1": "TransportCompanyOperator",
+  "_2": "TransportCompanyOperator::1220eb84e2c5e5b229fcbd7509b457673094d3dba84efd92c9dc6421f42b46c1fa2e"
+}, {
+  "_1": "ProcessingCompanyOperator",
+  "_2": "ProcessingCompanyOperator::1220eb84e2c5e5b229fcbd7509b457673094d3dba84efd92c9dc6421f42b46c1fa2e"
+}, {
+  "_1": "CertificateOfficer",
+  "_2": "CertificateOfficer::1220eb84e2c5e5b229fcbd7509b457673094d3dba84efd92c9dc6421f42b46c1fa2e"
+}, {
+  "_1": "BusinessOwner",
+  "_2": "party-d06eb4f1-4736-4e0b-bea8-354e1a3b9146::1220eb84e2c5e5b229fcbd7509b457673094d3dba84efd92c9dc6421f42b46c1fa2e"
+}, {
+  "_1": "FarmerOperator",
+  "_2": "FarmerOperator::1220eb84e2c5e5b229fcbd7509b457673094d3dba84efd92c9dc6421f42b46c1fa2e"
+}, {
   "_1": "Alice",
-  "_2": "Alice::12205688c2e6e3e486e7bc53668596c307d5bcc3028f9f38bcc27bdbc370997a7198"
+  "_2": "Alice::1220eb84e2c5e5b229fcbd7509b457673094d3dba84efd92c9dc6421f42b46c1fa2e"
 }, {
   "_1": "Bob",
-  "_2": "Bob::12205688c2e6e3e486e7bc53668596c307d5bcc3028f9f38bcc27bdbc370997a7198"
+  "_2": "Bob::1220eb84e2c5e5b229fcbd7509b457673094d3dba84efd92c9dc6421f42b46c1fa2e"
 }]

@@ -23,7 +23,16 @@ const Sidebar = ({ location } : RouteComponentProps) => {
     <Drawer open variant="permanent" className={classes.drawer} classes={{ paper: classes.drawer }}>
       <div className={classes.toolbar} />
       <List style={{ width: "100%" }}>
-        <SidebarLink key={0} label="Report" path="/app/report" icon={(<ListIcon />)} location={location} />
+        {/*<SidebarLink key={0} label="Report" path="/app/report" icon={(<ListIcon />)} location={location} />*/}
+        <SidebarLink key={1} label="Company" path="/app/company" icon={(<ListIcon />)} location={location} />
+        <SidebarLink key={2} label="Harvest" path="/app/harvest" icon={(<ListIcon />)} location={location} />
+        <SidebarLink key={3} label="Product" path="/app/product" icon={(<ListIcon />)} location={location} />
+        <SidebarLink key={4} label="Certificate" path="/app/charvest" icon={(<ListIcon />)} location={location} />
+        <SidebarLink key={4} label="OrderRequest" path="/app/boardingrequest" icon={(<ListIcon />)} location={location} />
+        <SidebarLink key={4} label="Order" path="/app/boarding" icon={(<ListIcon />)} location={location} />
+        <SidebarLink key={4} label="DeliveryRequest" path="/app/deliveryRequest" icon={(<ListIcon />)} location={location} />
+        <SidebarLink key={4} label="Delivery" path="/app/delivery" icon={(<ListIcon />)} location={location} />
+        <SidebarLink key={4} label="Processing" path="/app/processing" icon={(<ListIcon />)} location={location} />
       </List>
     </Drawer>
   );

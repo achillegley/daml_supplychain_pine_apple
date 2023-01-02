@@ -1,0 +1,129 @@
+module Delivery where
+import qualified Boarding as B
+
+import Daml.Script
+
+data Content= Content
+    with
+        driver : Party
+        companyOperator : Party
+        boarding:  ContractId B.Boarding
+        deliveryDate: Time
+    deriving(Eq,Show)
+
+{-
+data DeliveryResult=DeliveryResult 
+    with
+        product: ContractId P.Product 
+        delivery: ContractId Delivery
+-}        
+    
+template DeliveryRequest
+  with
+    content : Content
+  where
+    signatory content.driver
+    observer content.companyOperator
+    controller content.companyOperator can
+      ValidateDelivery : ContractId Delivery with
+            signDate: Time
+        do
+            create Delivery with  
+                content=content
+                signDate=signDate
+                readers=[]
+
+template Delivery
+    with
+        content: Content
+        signDate: Time
+        readers:[Party]
+    where 
+        signatory content.driver, content.companyOperator
+        observer readers
+
+s_create_delivery_request_with_parameter transportCompanyOperator processingCompanyOperator boardingCid 
+    productCid= script do
+
+    now<-getTime
+    let 
+        content=Content with
+            driver=transportCompanyOperator
+            companyOperator=processingCompanyOperator
+            boarding=boardingCid
+            deliveryDate=now
+    
+    deliveryRequest<- submit content.driver do
+        createCmd DeliveryRequest with
+            content=content
+    
+    now<-getTime
+    delivery <- submit content.companyOperator do
+        exerciseCmd deliveryRequest ValidateDelivery with
+            signDate=now 
+             
+    return(delivery)
+{-
+s_create_delivery : Script (DeliveryResult)
+s_create_delivery = script do
+    companyOperator <- allocateParty "CompanyOperator"
+    driver <- allocateParty "Driver"
+    now<-getTime
+    boardingResult<-B.s_create_farm_company_boarding
+    let 
+        content=Content with
+            driver=driver
+            companyOperator=companyOperator
+            boarding=boardingResult.boarding
+            deliveryAddress="L'entreprise d'arrivée"
+            deliveryDate=now
+            product= boardingResult.product
+            quantity=20
+    
+    deliveryRequest<- submit content.driver do
+        createCmd DeliveryRequest with
+            content=content
+    
+    now<-getTime
+
+    delivery <- submit content.companyOperator do
+        exerciseCmd deliveryRequest ValidateDelivery with
+            signDate=now  
+
+    let 
+        deliveryResult= DeliveryResult with
+            delivery = delivery
+            product= boardingResult.product    
+    return(deliveryResult)
+
+          
+s_param_create_delivery boardingResult= script do
+    companyOperator <- allocateParty "CompanyOperator"
+    driver <- allocateParty "Driver"
+    now<-getTime
+    let 
+        content=Content with
+            driver=driver
+            companyOperator=companyOperator
+            boarding=boardingResult.boarding
+            deliveryAddress="L'entreprise d'arrivée"
+            deliveryDate=now
+            product= boardingResult.product
+            quantity=20
+    
+    deliveryRequest<- submit content.driver do
+        createCmd DeliveryRequest with
+            content=content
+    
+    now<-getTime
+
+    delivery <- submit content.companyOperator do
+        exerciseCmd deliveryRequest ValidateDelivery with
+            signDate=now  
+
+    let 
+        deliveryResult= DeliveryResult with
+            delivery = delivery
+            product= boardingResult.product    
+    return(deliveryResult)
+-}

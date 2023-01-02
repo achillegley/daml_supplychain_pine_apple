@@ -1,0 +1,183 @@
+module Harvest where
+import qualified Company as C
+import qualified ChainFlow as CF
+import DA.Optional()
+
+import Daml.Script 
+
+
+data Certificate = Certificate
+  with
+    content: Text
+    comments: Text
+  deriving(Eq,Show)
+
+data HarvestResult= HarvestResult{
+  harvest: ContractId Harvest,
+  certificate_harvest: ContractId CertificateHarvest
+}deriving(Eq,Show)
+
+data Origin = Origin{
+  harvest: ContractId Harvest
+}deriving(Eq,Show)    
+
+template Harvest
+  with
+    operator : Party
+    code: Integer
+    createDate: Time
+    quantity : Int
+    company: ContractId C.Company
+    readers:[Party]
+  where
+    signatory operator
+    observer readers
+    choice GetFlow : ContractId CF.ChainFlow with
+       reader : Party
+     controller reader
+        do
+          create  CF.ChainFlow with      
+            readers=[reader]
+            content= [CF.FlowData with
+              c_key= show this]
+    choice HarvestCreateReader : ContractId Harvest with
+            reader : Party
+         controller operator
+            do
+            trace "Ajout d'un lecteur" (create this with readers = reader :: readers)    
+    {-
+    nonconsuming choice GetFlow : (F.FlowHarvest, F.FlowCompany)
+     controller operator,readers
+        do
+          flowCompany<- exercise this.company C.GetFlow 
+          let
+              toReturn= F.FlowHarvest with
+                  operator = show this.operator
+                  createDate = this.createDate
+                  quantity = this.quantity
+          return(toReturn,flowCompany)
+     -}     
+
+
+template CertificateHarvest
+  with 
+    officer: Party
+    code: Integer
+    harvest: ContractId Harvest
+    farmerOperator: Party
+    createDate: Time
+    content:Text
+    readers:[Party]
+  where 
+    signatory officer
+    observer farmerOperator, readers
+    choice C_GetFlow : ContractId CF.ChainFlow with
+       reader : Party
+     controller reader
+        do
+          h_flow<-exercise this.harvest GetFlow with
+            reader=reader
+          create  CF.ChainFlow with      
+            readers=[reader]
+            content= [CF.FlowData with
+              c_key= show this]
+    choice CertificateHarvestCreateReader : ContractId CertificateHarvest with
+            reader : Party
+         controller officer
+            do
+            trace "Ajout d'un lecteur" (create this with readers = reader :: readers)
+    {-
+    nonconsuming choice GetCertificateFlow : (F.FlowCertificateHarvest)
+      controller officer,readers
+          do
+            let
+                toReturn= F.FlowCertificateHarvest with
+                    officer = show this.officer
+                    createDate = this.createDate
+                    content = this.content
+            return(toReturn)       
+    -}
+{-
+s_create_harvest  = script do
+  farmerOperator <- allocateParty "FarmerOperator"
+  now<-getTime
+  
+  harvest1 <- submit farmerOperator do  
+    createCmd Harvest with
+      operator=farmerOperator
+      createDate= now
+      quantity=20
+      company= None
+      product= None
+  
+  let
+    origin = Origin with
+      harvest=harvest1
+  
+  product<-P.s_create_product_pine_apple(show origin.harvest)   
+  --certificate harvest
+  certificate_harvest<-sc_certify_harvest harvest1 farmerOperator
+  
+  
+  let 
+    harverstResult= HarvestResult with
+      harvest=harvest1
+      certificate_harvest=certificate_harvest
+      product=product
+
+  return (harverstResult)
+-}
+
+s_create_harvest_with_parameter companyCid farmerOperator  = script do
+  now<-getTime
+  harvest1 <- submit farmerOperator do  
+    createCmd Harvest with
+      operator=farmerOperator
+      createDate= now
+      quantity=20
+      company= companyCid
+      code=0
+      readers=[]
+   
+  return (harvest1)
+
+sc_certify_harvest harvest1 content farmerOperator = script do
+  certificateOfficer <- allocateParty "CertificateOfficer"
+  now<-getTime
+  certificate1 <- submit certificateOfficer  do
+    createCmd CertificateHarvest with
+      harvest= harvest1
+      createDate= now
+      farmerOperator=farmerOperator
+      officer=certificateOfficer
+      readers=[]
+      code=0
+      content=content
+  return (certificate1)
+
+{-
+s_get_harvest_flow farmerOperator harvestCid = script do
+  {-
+  productCid <- submit transportCompanyOperator do 
+    exerciseCmd productCid CreateReader with
+      reader=reader
+  -}
+  fruit_flow<- submit farmerOperator do 
+    exerciseCmd harvestCid GetFlow with
+      reader=farmerOperator
+  return(fruit_flow)
+-}
+{-
+s_get_cerficate_harvest_flow farmerOperator harvestCid = script do
+  {-
+  productCid <- submit transportCompanyOperator do 
+    exerciseCmd productCid CreateReader with
+      reader=reader
+  -}
+{-
+  fruit_flow<- submit farmerOperator do 
+    exerciseCmd harvestCid C_GetFlow with
+      reader=farmerOperator
+  return(fruit_flow)
+-}
+-}

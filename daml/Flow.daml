@@ -1,0 +1,48 @@
+module Flow where
+import DA.Optional()
+--import qualified Processing as Proooo
+
+data FlowHarvest = FlowHarvest with
+    operator : Text
+    createDate: Time
+    quantity : Int
+
+data FlowCerficateHarvest = FlowCerficateHarvest with
+    officer : Text
+    content: Text
+    createDate: Time
+
+data FlowCompany = FlowCompany with
+    address: Text
+    name: Text
+    category: Text
+    operator: Text
+
+data FlowProcessing = FlowProcessing with
+    address: Text
+    name: Text
+    category: Text
+    operator: Text
+
+data FlowProduct = FlowProduct with
+    label: Text
+    description: Text
+    operator: Text
+
+data FlowBoarding= FlowBoarding with
+    departure: Text
+    arrival: Text
+    transportCompany: Text
+    processingCompany: Text
+    driver: Text
+    boaordingDate: Time
+--if owner == scroogeMcDuck then "sell" else "buy"
+
+data FlowData = FlowData 
+    with
+        harvest: Optional FlowHarvest
+        certificate: Optional FlowCerficateHarvest
+        company: Optional FlowCompany
+
+data FlowInfo = FlowInfo
+    

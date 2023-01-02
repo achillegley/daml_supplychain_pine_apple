@@ -5,6 +5,7 @@ module Main where
 
 import Daml.Script
 import DA.Date
+import qualified Company as C
 
 type AssetId = ContractId Asset
 
@@ -38,11 +39,32 @@ template Asset
             dateOfAppraisal = newDateOfAppraisal
             value = newValue
 
+
 setup : Script [(Text, Party)]
 setup = do
   alice <- allocatePartyWithHint "Alice" $ PartyIdHint with partyIdHint = "Alice"
   bob <- allocatePartyWithHint "Bob" $ PartyIdHint with partyIdHint = "Bob"
 
+  node<-C.s_create_node
+  let 
+      businessOwner = fst node
+      companyCreation = snd node
+
+  farmerOperator<-allocatePartyWithHint "FarmerOperator" $ PartyIdHint with partyIdHint = "FarmerOperator"
+  certificateOfficer<-allocatePartyWithHint "CertificateOfficer" $ PartyIdHint with partyIdHint = "CertificateOfficer"
+  processingCompanyOperator<-allocatePartyWithHint "ProcessingCompanyOperator" $ PartyIdHint with partyIdHint = "ProcessingCompanyOperator"
+  transportCompanyOperator<-allocatePartyWithHint "TransportCompanyOperator" $ PartyIdHint with partyIdHint = "TransportCompanyOperator"
+  
+  {-
+  let
+    farmItem=C.Item with
+        address="9.536427, 1.199523"
+        category=C.Farm
+        name="Kozah, Togo"
+
+  farm<- C.s_create_company_script_with_parameter companyCreation businessOwner farmerOperator farmItem
+
+  -}
   let now = date 2020 Jan 1
   submit alice do createCmd Asset with issuer = alice; owner = alice; name = "TV"; dateOfAppraisal = now; value = 1_000.0
   submit alice do createCmd Asset with issuer = alice; owner = alice; name = "Car"; dateOfAppraisal = now; value = 30_000.0
@@ -50,4 +72,4 @@ setup = do
   submit bob do createCmd Asset with issuer = bob; owner = alice; name = "Bike"; dateOfAppraisal = now; value = 200.0
   submit bob do createCmd Asset with issuer = bob; owner = bob; name = "House"; dateOfAppraisal = now; value = 400_000.0
 
-  pure [("Alice", alice), ("Bob", bob)]
+  pure [("TransportCompanyOperator", transportCompanyOperator),("ProcessingCompanyOperator", processingCompanyOperator),("CertificateOfficer", certificateOfficer),("BusinessOwner", businessOwner),("FarmerOperator", farmerOperator),("Alice", alice), ("Bob", bob)]

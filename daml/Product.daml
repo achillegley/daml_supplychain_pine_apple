@@ -1,0 +1,116 @@
+module Product where
+import Daml.Script
+import DA.Date()
+import DA.Time()
+import Harvest as H
+import DA.Optional()
+--import qualified Processing as Pro
+type ProductId = ContractId Product
+
+
+data HarvestOrigin = HarvestOrigin 
+  with
+    harvestCid: ContractId H.Harvest
+  deriving(Eq,Show)
+
+--data ProcessingOrigin = ProcessingOrigin 
+  --with
+    --processingCid: ContractId Pro.Processing
+  --deriving(Eq,Show)
+
+data Item = Item
+    with
+        label : Text
+        description: Text
+        harvestEvent: Optional  HarvestOrigin
+        --processingEvent: Optional ProcessingOrigin
+        eventType: Text
+    deriving(Eq,Show)
+
+data ProductResult = ProductResult
+  with 
+    owner:Party
+    product: ContractId Product
+  deriving(Eq,Show)
+template Product
+  with
+    owner : Party
+    item: Item
+    readers: [Party]
+  where
+    signatory owner
+    observer readers
+    nonconsuming choice Observe :  Product with
+      productCid : ContractId Product
+      reader : Party
+     controller readers
+        do 
+          product<- fetch productCid
+          return( this)
+    choice ProductCreateReader 
+     : ContractId Product with
+       reader : Party
+     controller owner
+        do
+          trace "Ajout d'un lecteur" (create this with readers = reader :: readers)
+  
+
+
+s_create_product_pine_apple_with_parameter origin farmerOperator = script do
+    let
+      pineAppleItem= Item with
+        label="annanas"
+        description=" annanas bio"
+        harvestEvent = Some HarvestOrigin with
+          harvestCid=origin
+        --processingEvent= None
+        eventType="harvest"
+
+    pineApple<- submit farmerOperator do 
+      createCmd Product with 
+        owner = farmerOperator
+        item = pineAppleItem
+        readers=[]
+
+    return (pineApple)
+
+
+s_create_product_juice origin = script do
+    farmer <- allocateParty "Farmer"
+    processor <- allocateParty "Processor"
+    let
+      juiceItem = Item with
+        label="Jus Firsty"
+        description=" Jus naturel fait à base d'annanas bio"
+        --processingEvent = Some ProcessingOrigin with
+          --processingCid=origin
+        harvestEvent= None
+        eventType="harvest"
+
+    juice<- submit processor do 
+      createCmd Product with 
+        owner = processor
+        item = juiceItem
+        readers=[]
+    
+    let 
+      result= ProductResult with
+        product=juice
+        owner=processor
+    return (result)
+  
+
+s_get_product_information  productCid owner = script do
+  customer<- allocateParty "Customer"
+
+  productCid <- submit owner do 
+    exerciseCmd productCid ProductCreateReader with
+      reader=customer
+
+  product <- submit customer do 
+    exerciseCmd productCid Observe with
+      reader=customer
+      productCid=productCid
+  return(product)
+
+

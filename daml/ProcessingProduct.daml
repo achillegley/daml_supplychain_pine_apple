@@ -1,0 +1,91 @@
+module ProcessingProduct where
+import Daml.Script
+import DA.Date()
+import DA.Time()
+import DA.Optional
+import qualified Company as C
+import qualified Processing as Pro
+import qualified Product as P 
+
+
+
+
+data ProcessingOrigin = ProcessingOrigin 
+  with
+    processingCid: ContractId Pro.Processing
+  deriving(Eq,Show)
+
+data Item = Item
+    with
+        label : Text
+        description: Text
+        processingEvent: Optional ProcessingOrigin
+        eventType: Text
+    deriving(Eq,Show)
+
+
+template ProcessingProduct
+  with
+    owner : Party
+    item: Item
+    readers: [Party]
+  where
+    signatory owner
+    observer readers
+    nonconsuming choice Observe :  ProcessingProduct with
+      productCid : ContractId ProcessingProduct
+      reader : Party
+     controller readers
+        do 
+          product<- fetch productCid
+          return( this)
+    nonconsuming choice CreateReader 
+     : ContractId ProcessingProduct with
+       reader : Party
+     controller owner
+        do
+          trace "Ajout d'un lecteur" (create this with readers = reader :: readers)
+  
+    choice GetInformation : (Pro.Processing , C.Company)
+     controller owner,readers
+        do
+          let
+            proEvent= fromSome(this.item.processingEvent)
+          c_processing <- fetch (proEvent.processingCid)
+          
+          c_company<- fetch (c_processing.content.company)
+          
+          --c_fruit<- fetch (c_processing.content.fruit)
+          return(c_processing,c_company)  
+
+
+    
+
+s_create_product_juice_with_parameter origin processingCompanyOperator = script do
+    let
+      juiceItem = Item with
+        label="Jus Firsty"
+        description=" Jus naturel fait à base d'annanas bio"
+        processingEvent = Some ProcessingOrigin with
+          processingCid=origin
+        eventType="harvest"
+
+    juice<- submit processingCompanyOperator do 
+      createCmd ProcessingProduct with 
+        owner = processingCompanyOperator
+        item = juiceItem
+        readers=[]
+    
+    return (juice)
+  
+
+s_get_fruit_flow transportCompanyOperator productCid = script do
+  reader<- allocateParty "Customer"
+  {-
+  productCid <- submit transportCompanyOperator do 
+    exerciseCmd productCid CreateReader with
+      reader=reader
+  -}
+  fruit_flow<- submit transportCompanyOperator do 
+    exerciseCmd productCid GetInformation
+  return(fruit_flow)

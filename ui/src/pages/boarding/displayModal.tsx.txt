@@ -1,0 +1,51 @@
+import React from "react";
+import Dialog from "@material-ui/core/Dialog";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import TableRow from "@material-ui/core/TableRow";
+import TableCell from "@material-ui/core/TableCell";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import Button from "@material-ui/core/Button";
+import useStyles from "./styles";
+
+let displayProductType={
+  open:false,
+  content:{
+    label:"",
+    description:""
+  }
+}
+
+export  function DisplayModal(content:typeof displayProductType) {
+  const [open, setOpen] = React.useState(content.open);
+
+  const handleClickToOpen = () => {
+    setOpen(true);
+  };
+  
+  return (
+    <div>
+    <h4>How to create Dialog Box in ReactJS?</h4>
+    <Button variant="outlined" color="primary"
+        onClick={handleClickToOpen}>
+      Open Demo Dialog
+  </Button>
+    <Dialog open={content.open} >
+      <DialogTitle>{"How are you?"}</DialogTitle>
+      <DialogContent>
+      <DialogContentText>
+        {}
+      </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+      <Button 
+      //onClick={handleToClose}
+          color="primary" autoFocus>
+        Close
+      </Button>
+      </DialogActions>
+    </Dialog>
+    </div>
+  );
+}

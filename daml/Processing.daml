@@ -1,0 +1,129 @@
+module Processing where
+--import qualified Boarding as B
+--import qualified Delivery as D
+import Product as P
+import DA.Optional()
+import Company as C
+import Daml.Script
+{-
+data Origin = Origin{
+  processing: ContractId Processing
+}deriving(Eq,Show)
+
+data Result= Result{
+  processing: ContractId Processing
+}deriving(Eq,Show)
+-}
+{-
+data ProcessingResult = ProcessingResult{
+  processing: ContractId Processing,
+  product : ContractId P.Product,
+  productOwner: Party
+}deriving(Eq,Show)
+-}
+{-
+data ProductLot = ProductLot
+  with
+    product: ContractId Product
+    quantity: Integer
+  deriving(Eq,Show)
+-}
+data Content= Content
+  with
+    fruit: ContractId Product
+    ingredients: Text
+    createDate: Time
+    companyOperator: Party
+    company: ContractId C.Company
+    readers:[Party]
+  deriving(Eq,Show)
+    
+template Processing
+  with
+    content : Content
+  where
+    signatory content.companyOperator
+    observer content.readers
+
+s_create_processing_with_parameter companyCid companyOperator productCid = script do
+  now<-getTime
+  let
+    content= Content with
+          fruit=productCid
+          ingredients=""
+          createDate= now
+          companyOperator=companyOperator
+          company= companyCid
+          readers=[]
+    
+  processing <- submit companyOperator do  
+      createCmd Processing with
+        content
+    
+  return(processing)
+
+{-        
+s_create_company=script do
+  C.s_create_company_script
+
+s_create_processing = script do
+    companyOperator <- allocateParty "companyOperator"
+    now<-getTime
+    deliveryResult<- D.s_create_delivery
+    let 
+      fruit= ProductLot with
+        product=deliveryResult.product
+        quantity= 100
+
+      content= Content with
+        fruit=fruit
+        ingredients="0 additifs et riche en vitamine c"
+        createDate= now
+        companyOperator=companyOperator
+
+
+    processing <- submit companyOperator do  
+      createCmd Processing with
+        content
+    let
+      toReturn=Result with
+        processing=processing
+    return(toReturn)
+-}
+{-
+
+s_create_final_products= script do
+  result<-s_create_processing
+  let
+    corigin= show result.processing
+  
+  productResult<-P.s_create_product_juice (corigin)
+
+  let
+    processingResult = ProcessingResult with
+      product=productResult.product
+      processing= result.processing
+      productOwner= productResult.owner
+
+
+  return(processingResult)
+          
+
+
+s_create_company_warehouse_boarding =  script do 
+  
+  processingResult<-s_create_final_products
+  boardingResult<-B.s_create_company_warehouse_boarding(processingResult)
+  deliveryResult<-D.s_param_create_delivery boardingResult
+  
+  readed<-s_obeseve_product deliveryResult processingResult.productOwner
+
+  return(readed)
+
+s_obeseve_product : (HasExercise t CreateReader (ContractId Product), HasFromAnyChoice t CreateReader (ContractId Product), HasToAnyChoice t CreateReader (ContractId Product), HasFromAnyTemplate t, HasToAnyTemplate t, HasTemplateTypeRep t, DA.Internal.Record.HasField "product" r (ContractId t)) => r -> Party -> Script Product
+s_obeseve_product deliveryResult productOwner= script do
+  readed<-P.s_get_product_information deliveryResult.product productOwner
+  return(readed)
+-}
+
+ 

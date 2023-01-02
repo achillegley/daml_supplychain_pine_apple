@@ -1,0 +1,111 @@
+module CustomScript where
+import qualified Company as C
+import qualified Harvest as H
+import qualified Product as P
+import qualified ProcessingProduct as ProProd
+import qualified Boarding as B
+import qualified BoardingWareHouse as Bw
+import qualified Delivery as D
+import qualified DeliveryWareHouse as Dw
+import qualified Processing as Pro
+--import qualified ChainFlow as CF
+import Daml.Script
+
+
+s_create_node : Script (Text)
+s_create_node= script do
+    --set business owner and company creation
+    node<-C.s_create_node
+
+    let 
+        businessOwner = fst node
+        companyCreation = snd node
+    
+    --companies creation
+    --farm
+    farmerOperator<- allocateParty "FarmerOperator"
+    let
+        farmItem=C.Item with
+            address="9.536427, 1.199523"
+            category=C.Farm
+            name="Kozah, Togo"
+
+    farm<- C.s_create_company_script_with_parameter companyCreation businessOwner farmerOperator farmItem
+
+    --processingCompany
+    let
+        processingCompanyItem=C.Item with
+            address="Boulevard Du 30 Aout, Lomé, Togo"
+            category=C.ProcessingCompany
+            name="Afrik Pro"
+
+    processingCompanyOperator<- allocateParty "ProcessingCompanyOperator"
+
+    processingCompany<- C.s_create_company_script_with_parameter companyCreation businessOwner processingCompanyOperator processingCompanyItem
+
+
+    --transportCompany
+    let
+        transportCompanyItem=C.Item with
+            address="+22823218199 Lomé, Togo"
+            category=C.TransportCompany
+            name="ADJI TRANSPORT"
+
+    transportCompanyOperator<- allocateParty "transportCompanyOperator"
+
+    transportCompany<- C.s_create_company_script_with_parameter companyCreation businessOwner transportCompanyOperator transportCompanyItem
+
+    --wareHouse
+    let
+        wareHouseItem=C.Item with
+            address="+22891900143 Lomé, Togo"
+            category=C.WareHouse
+            name="TOGO BOUTIQUE"
+
+    wareHouseOperator<- allocateParty "wareHouseOperator"
+
+    wareHouse<- C.s_create_company_script_with_parameter companyCreation businessOwner wareHouseOperator wareHouseItem
+    
+    -- Harvest
+
+    harvest<-H.s_create_harvest_with_parameter farm farmerOperator
+    ------flow
+    --currentFlow0<-H.s_get_harvest_flow farmerOperator harvest
+
+    --create Product pineApple on harvest 
+    pine_apple<-P.s_create_product_pine_apple_with_parameter harvest farmerOperator
+    --cretifie harvest
+    certificateOfficer<-allocateParty("CertificateOfficer")
+    certificate_harvest<-H.sc_certify_harvest harvest "hashDocumentCertification" certificateOfficer
+
+    ------flow
+    --flow<-CF.s_add_reader currentFlow0 certificateOfficer farmerOperator
+    
+    --currentFlow1<-H.s_get_cerficate_harvest_flow certificateOfficer certificate_harvest    
+
+    --prepare farm_to_company_boarding
+    farm_company_boarding <- B.s_create_farm_company_boarding_with_parameter 
+        transportCompany transportCompanyOperator
+        farm farmerOperator
+        pine_apple
+        processingCompany 
+    
+    
+    delivery<-D.s_create_delivery_request_with_parameter transportCompanyOperator processingCompanyOperator farm_company_boarding pine_apple
+    
+    processing<-Pro.s_create_processing_with_parameter processingCompany processingCompanyOperator pine_apple
+    
+    juice<- ProProd.s_create_product_juice_with_parameter processing processingCompanyOperator 
+    
+    
+    company_warehouse_boarding <- Bw.s_create_company_warehouse_boarding_with_parameter 
+        transportCompany transportCompanyOperator
+        processingCompany processingCompanyOperator
+        juice
+        wareHouse 
+    
+    delivery<-Dw.s_create_delivery_request_with_parameter transportCompanyOperator wareHouseOperator company_warehouse_boarding juice
+    
+    flow<- ProProd.s_get_fruit_flow processingCompanyOperator juice 
+    return(show flow)
+

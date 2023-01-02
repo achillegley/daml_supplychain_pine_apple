@@ -1,0 +1,140 @@
+module BoardingWareHouse where
+import qualified ProcessingProduct as ProProd
+import qualified Company as C
+import Daml.Script
+
+data Content= Content
+    with
+        transportCompany: ContractId C.Company
+        driver : Party
+        operator: Party
+        product:  ContractId ProProd.ProcessingProduct
+        quantity: Int
+        departure: ContractId C.Company
+        destination: ContractId C.Company
+        createDate: Time
+    deriving(Eq,Show)
+    
+
+
+template BoardingRequest
+  with
+    content : Content
+  where
+    signatory content.operator
+    controller content.driver can
+      ValidateBoarding : ContractId Boarding with
+            signDate: Time
+        do
+            create Boarding with  
+                content=content
+                signDate=signDate
+                readers=[]
+
+
+template Boarding
+    with
+        content: Content
+        signDate: Time
+        readers:[Party]
+    where 
+        signatory content.operator, content.driver
+        observer readers
+       
+s_create_company_warehouse_boarding_with_parameter 
+    transportCompanyCid transportCompanyOperator
+    processingCompanyCid processingCompanyOperator
+    proprodCid
+    wareHouseCid 
+    = script do
+    now<-getTime
+    let 
+        content= Content with
+            transportCompany=transportCompanyCid
+            driver=transportCompanyOperator
+            operator=processingCompanyOperator
+            product=proprodCid
+            quantity=20
+            departure=processingCompanyCid
+            destination=wareHouseCid
+            createDate=now
+           
+    boardingRequest<- submit content.operator do
+        createCmd BoardingRequest with
+            content=content
+    now<-getTime
+
+    boarding <- submit content.driver do
+        exerciseCmd boardingRequest ValidateBoarding with
+            signDate=now 
+    return(boarding)
+     
+{-
+s_create_farm_company_boarding : Script (BoardingResult)
+s_create_farm_company_boarding = script do
+    farmerOperator <- allocateParty "FarmerOperator"
+    driver <- allocateParty "Driver"
+    now<-getTime
+    resultHarvest <- H.s_create_harvest 
+    let 
+        content= Content with
+            driver=driver
+            operator=farmerOperator
+            product=resultHarvest.product
+            departure="La ferme de départ"
+            destination="Entreprise d'arrivée"
+            quantity=20
+            createDate=now
+    
+    boardingRequest<- submit content.operator do
+        createCmd BoardingRequest with
+            content=content
+    
+    now<-getTime
+
+    boarding <- submit content.driver do
+        exerciseCmd boardingRequest ValidateBoarding with
+            signDate=now  
+    let
+        boardingResult=BoardingResult with
+            boarding=boarding
+            product=resultHarvest.product    
+    return(boardingResult)
+
+
+s_create_company_warehouse_boarding processingResult  = script do
+    wareHouseOperator <- allocateParty "WareHouseOperator"
+    driver <- allocateParty "Driver"
+    now<-getTime
+    let 
+        content= Content with
+            driver=driver
+            operator=wareHouseOperator
+            product=processingResult.product
+            departure="Entreprise de transformation"
+            destination="Magasin"
+            createDate=now
+            quantity=10
+
+
+    boardingRequest<- submit content.operator do
+        createCmd BoardingRequest with
+            content=content
+    
+    now<-getTime
+
+    boarding <- submit content.driver do
+        exerciseCmd boardingRequest ValidateBoarding with
+            signDate=now  
+
+    let
+        boardingResult=BoardingResult with
+            boarding=boarding
+            product=processingResult.product    
+
+    return(boardingResult)
+
+
+-}          
+
+

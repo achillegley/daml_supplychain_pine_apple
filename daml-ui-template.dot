@@ -1,0 +1,228 @@
+digraph G {
+compound=true;
+rankdir=LR;
+subgraph cluster_CertificateHarvest{
+n0[label=Create][color=green]; 
+n1[label=C_GetFlow][color=red]; 
+n2[label=Archive][color=red]; 
+n3[label=CertificateHarvestCreateReader][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>CertificateHarvest</b></td></tr><tr><td align="left">officer</td></tr> 
+<tr><td align="left">code</td></tr> 
+<tr><td align="left">harvest</td></tr> 
+<tr><td align="left">farmerOperator</td></tr> 
+<tr><td align="left">createDate</td></tr> 
+<tr><td align="left">content</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Harvest{
+n4[label=Create][color=green]; 
+n5[label=GetFlow][color=red]; 
+n6[label=HarvestCreateReader][color=red]; 
+n7[label=Archive][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Harvest</b></td></tr><tr><td align="left">operator</td></tr> 
+<tr><td align="left">code</td></tr> 
+<tr><td align="left">createDate</td></tr> 
+<tr><td align="left">quantity</td></tr> 
+<tr><td align="left">company</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Company{
+n8[label=Create][color=green]; 
+n9[label=GetFlow][color=green]; 
+n10[label=Archive][color=red]; 
+n11[label=CreateReader][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Company</b></td></tr><tr><td align="left">owner</td></tr> 
+<tr><td align="left">code</td></tr> 
+<tr><td align="left">operator</td></tr> 
+<tr><td align="left">company.address</td></tr> 
+<tr><td align="left">company.name</td></tr> 
+<tr><td align="left">company.category</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_CompanyCreation{
+n12[label=Create][color=green]; 
+n13[label=CreateCompany][color=green]; 
+n14[label=Archive][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>CompanyCreation</b></td></tr><tr><td align="left">owner</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Delivery{
+n15[label=Create][color=green]; 
+n16[label=Archive][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Delivery</b></td></tr><tr><td align="left">content.driver</td></tr> 
+<tr><td align="left">content.companyOperator</td></tr> 
+<tr><td align="left">content.boarding</td></tr> 
+<tr><td align="left">content.deliveryDate</td></tr> 
+<tr><td align="left">signDate</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_DeliveryRequest{
+n17[label=Create][color=green]; 
+n18[label=Archive][color=red]; 
+n19[label=ValidateDelivery][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>DeliveryRequest</b></td></tr><tr><td align="left">content.driver</td></tr> 
+<tr><td align="left">content.companyOperator</td></tr> 
+<tr><td align="left">content.boarding</td></tr> 
+<tr><td align="left">content.deliveryDate</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Boarding{
+n20[label=Create][color=green]; 
+n21[label=Archive][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Boarding</b></td></tr><tr><td align="left">content.transportCompany</td></tr> 
+<tr><td align="left">content.driver</td></tr> 
+<tr><td align="left">content.operator</td></tr> 
+<tr><td align="left">content.product</td></tr> 
+<tr><td align="left">content.quantity</td></tr> 
+<tr><td align="left">content.departure</td></tr> 
+<tr><td align="left">content.destination</td></tr> 
+<tr><td align="left">content.createDate</td></tr> 
+<tr><td align="left">signDate</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_BoardingRequest{
+n22[label=Create][color=green]; 
+n23[label=Archive][color=red]; 
+n24[label=ValidateBoarding][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>BoardingRequest</b></td></tr><tr><td align="left">content.transportCompany</td></tr> 
+<tr><td align="left">content.driver</td></tr> 
+<tr><td align="left">content.operator</td></tr> 
+<tr><td align="left">content.product</td></tr> 
+<tr><td align="left">content.quantity</td></tr> 
+<tr><td align="left">content.departure</td></tr> 
+<tr><td align="left">content.destination</td></tr> 
+<tr><td align="left">content.createDate</td></tr> 
+</table>>;color=blue
+}subgraph cluster_ProcessingProduct{
+n25[label=Create][color=green]; 
+n26[label=CreateReader][color=green]; 
+n27[label=Archive][color=red]; 
+n28[label=GetInformation][color=red]; 
+n29[label=Observe][color=green]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>ProcessingProduct</b></td></tr><tr><td align="left">owner</td></tr> 
+<tr><td align="left">item.label</td></tr> 
+<tr><td align="left">item.description</td></tr> 
+<tr><td align="left">item.processingEvent</td></tr> 
+<tr><td align="left">item.eventType</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Product{
+n30[label=Create][color=green]; 
+n31[label=Archive][color=red]; 
+n32[label=ProductCreateReader][color=red]; 
+n33[label=Observe][color=green]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Product</b></td></tr><tr><td align="left">owner</td></tr> 
+<tr><td align="left">item.label</td></tr> 
+<tr><td align="left">item.description</td></tr> 
+<tr><td align="left">item.harvestEvent</td></tr> 
+<tr><td align="left">item.eventType</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Delivery{
+n34[label=Create][color=green]; 
+n35[label=Archive][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Delivery</b></td></tr><tr><td align="left">content.driver</td></tr> 
+<tr><td align="left">content.companyOperator</td></tr> 
+<tr><td align="left">content.boarding</td></tr> 
+<tr><td align="left">content.deliveryDate</td></tr> 
+<tr><td align="left">signDate</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_DeliveryRequest{
+n36[label=Create][color=green]; 
+n37[label=Archive][color=red]; 
+n38[label=ValidateDelivery][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>DeliveryRequest</b></td></tr><tr><td align="left">content.driver</td></tr> 
+<tr><td align="left">content.companyOperator</td></tr> 
+<tr><td align="left">content.boarding</td></tr> 
+<tr><td align="left">content.deliveryDate</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Processing{
+n39[label=Create][color=green]; 
+n40[label=Archive][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Processing</b></td></tr><tr><td align="left">content.fruit</td></tr> 
+<tr><td align="left">content.ingredients</td></tr> 
+<tr><td align="left">content.createDate</td></tr> 
+<tr><td align="left">content.companyOperator</td></tr> 
+<tr><td align="left">content.company</td></tr> 
+<tr><td align="left">content.readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_ChainFlow{
+n41[label=Create][color=green]; 
+n42[label=Archive][color=red]; 
+n43[label=CreateReader][color=green]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>ChainFlow</b></td></tr><tr><td align="left">readers</td></tr> 
+<tr><td align="left">content</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Boarding{
+n44[label=Create][color=green]; 
+n45[label=Archive][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Boarding</b></td></tr><tr><td align="left">content.transportCompany</td></tr> 
+<tr><td align="left">content.driver</td></tr> 
+<tr><td align="left">content.operator</td></tr> 
+<tr><td align="left">content.product</td></tr> 
+<tr><td align="left">content.quantity</td></tr> 
+<tr><td align="left">content.departure</td></tr> 
+<tr><td align="left">content.destination</td></tr> 
+<tr><td align="left">content.createDate</td></tr> 
+<tr><td align="left">signDate</td></tr> 
+<tr><td align="left">readers</td></tr> 
+</table>>;color=blue
+}subgraph cluster_BoardingRequest{
+n46[label=Create][color=green]; 
+n47[label=Archive][color=red]; 
+n48[label=ValidateBoarding][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>BoardingRequest</b></td></tr><tr><td align="left">content.transportCompany</td></tr> 
+<tr><td align="left">content.driver</td></tr> 
+<tr><td align="left">content.operator</td></tr> 
+<tr><td align="left">content.product</td></tr> 
+<tr><td align="left">content.quantity</td></tr> 
+<tr><td align="left">content.departure</td></tr> 
+<tr><td align="left">content.destination</td></tr> 
+<tr><td align="left">content.createDate</td></tr> 
+</table>>;color=blue
+}subgraph cluster_Asset{
+n49[label=Create][color=green]; 
+n50[label=Archive][color=red]; 
+n51[label=Give][color=red]; 
+n52[label=Appraise][color=red]; 
+label=<<table align = "left" border="0" cellborder="0" cellspacing="1">
+<tr><td align="center"><b>Asset</b></td></tr><tr><td align="left">issuer</td></tr> 
+<tr><td align="left">owner</td></tr> 
+<tr><td align="left">name</td></tr> 
+<tr><td align="left">dateOfAppraisal</td></tr> 
+<tr><td align="left">value</td></tr> 
+</table>>;color=blue
+}n1->n41
+n1->n5
+n3->n0
+n5->n41
+n6->n4
+n11->n8
+n13->n8
+n19->n15
+n24->n20
+n26->n25
+n32->n30
+n38->n34
+n43->n41
+n43->n42
+n48->n44
+n51->n49
+n52->n49
+
+}

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains a simple UI template for a DAML application. It provides ledger connectivity and shows how to create simple reports from contracts. The template is based on [create-react-app](https://github.com/facebook/create-react-app) and the [Material UI](https://material-ui.com/) framework.
+This repository contains a prototype of supplychain project build in DAML. spefically for pineapple juice production supplychain it help track apple juice from farm( fruit de base) to warehouse, this project can be extended to other supplychain project as is configurable. Customers can all information by just scanning Qr code. this projet is base on DAML simple UI template. The template is based on [create-react-app](https://github.com/facebook/create-react-app) and the [Material UI](https://material-ui.com/) framework.
 
 ## Prerequisites
 
@@ -29,17 +29,9 @@ This opens a browser page pointing to `http://localhost:3000/#/login`. Note that
 
 If you change the Daml code you need to rerun all of the steps above in order for the changes to propagate properly into the UI code.
 
-Note that in order to support login with party aliases (like "Alice") we output a `[(Text, Party)]` mapping from the init script. This output file (`ui/parties.json`) is used to map party aliases to party ids.
+Note that in order to support login with party aliases (like "Business Owner") we output a `[(Text, Party)]` mapping from the init script. This output file (`ui/parties.json`) is used to map party aliases to party ids.
 For this to work the ledger has to have completed the init script before starting up the UI server. This is of course only a convenience practice and should not be used in production.
 
 ## Exploring the application
 
-- Login as `Alice` (case sensitive), leaving the password blank.
-
-- You are now redirected to `http://localhost:3000/#/app/report` where you see a table with all `Asset` contracts listed.
-
-- Two choice buttons are displayed for each contract: the `Give` choice is enabled if the logged-in party is the `owner` of an asset. The `Appraise` button is enabled if the logged-in user is the `issuer` of the asset.
-
-- Both choices will open a dialog to enter the required parameters. The dialog currently supports `text`, `number`, `date`, and `selection` input types.
-
-The `Report` page is meant as an example, which you can copy and modify to your needs.
+https://drive.google.com/file/d/137WaL7urQi3-e_B5UJByLiamM1THFFui/view?usp=share_link (page 34 -40 )

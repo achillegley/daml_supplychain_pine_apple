@@ -1,5 +1,5 @@
 sdk-version: 2.2.0
-name: daml-ui-template
+name: apple-supply-chain-prototype
 source: daml
 parties:
   - Alice
